@@ -1,95 +1,53 @@
-* {
+/*Default*/
+html,
+body {
+    background-color: #242527;
+    padding: 10px;
     margin: 0;
     padding: 0;
+}
+
+* {
     box-sizing: border-box;
 }
 
-html,
-body {
-    background-color: #1b1d20;
-    padding: 10px;
+ul, p{
+    padding: 0;
+    margin: 0;
+    list-style: none;
 }
+/*Acima Default*/
+
+
+
 
 img {
-    width: 100% !important;
+    max-width: 100%;
     display: block;
     border-radius: 5px;
 }
 
-.slide {
-    max-width: 480px;
-    border-radius: 5px;
-    padding: 2px;
-    margin: 40px auto;
-    display: grid;
-    border: solid 1px white;
-}
-
-.slide-items {
-    position: relative;
-    grid-area: 1/1;
+.slide-wrapper{
     overflow: hidden;
+    background-color: white;
+    margin: 10px 0;
+    padding: 4px;
 }
 
-.slide-nav {
-    grid-area: 1/1;
-    z-index: 1;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto 1fr;
-}
-
-.slide-nav button {
-    -webkit-appearance: none;
-    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-    opacity: 0;
-}
-
-.slide-items>* {
-    /* Esse asteristico acima to pegando todos os items */
-    position: absolute;
-    opacity: 0;
-    top: 0;
-    pointer-events: none;
-    /*Esse elemento acima previne q eu click nos items q estão com opacity 0*/
-    transition: 0.5s;
-}
-
-.slide-items>.ativo {
-    opacity: 1;
-    position: relative;
-    pointer-events: initial;
-    /*Agora, no meu item com opacity 1 posso clickar.*/
-}
-
-.slide-thumb {
+.slide{
     display: flex;
-    grid-column: 1/3;
 }
 
-.slide-thumb>span {
-    flex: 1;
-    display: block;
-    height: 3px;
-    border-radius: 2px;
-    background-color: #383a3d;
-    z-index: 1000;
-    margin: 6px;
-    overflow: hidden;
+
+.slide li{
+    flex-shrink: 0;
+    /*flex-shrink, os elementos, não diminuem seu tamanho, permanece com 80vw*/
+    /*Fazendo com o q o elemento pai, aumente seu tamanho*/
+    width: 80vw;
+    max-width: 800px;
+    margin: 0  20px;
 }
 
-.slide-thumb>span.ativo::after {
-    content: '';
-    display: block;
-    height: inherit;
-    background: ivory;
-    border-radius: 2px;
-    transform: translateX(-100%);
-    animation: thumb 5s forwards linear;
-}
-
-@keyframes thumb {
-    to {
-        transform: initial;
-    }
+.slide{
+    transform: translate3d(0, 0, 0);
 }
