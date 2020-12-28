@@ -48,6 +48,12 @@ export default class Slide {
         this.dist.finalPosition = this.dist.movePosition;
         this.changeSlideOnEnd();
         this.transitionAtivo(true);
+        this.changeActiveClass();
+
+        //Eu add essa linha abaixo, caso queria possa remover,
+        //Porem, q toda ver depois q eu iniciar o slide, 
+        this.dist.moviment = 0;
+        //Se eu ficar dando click, ele vai disparar, 
     }
 
     changeSlideOnEnd() {
@@ -68,14 +74,8 @@ export default class Slide {
         this.wrapper.addEventListener('touchend', this.onEnd);
     }
 
-    bindEvents() {
-        this.onStart = this.onStart.bind(this);
-        this.onmove = this.onmove.bind(this);
-        this.onEnd = this.onEnd.bind(this);
-    }
 
     //Slides Config
-
     positionSlide(slide) {
         const margin = (this.wrapper.offsetWidth - slide.offsetWidth) / 2;
         return -(slide.offsetLeft - margin);
@@ -105,10 +105,16 @@ export default class Slide {
 
     changeSlide(index) {
         const activSlide = this.slideArray[index];
-
         this.moveSlide(activSlide.position);
         this.indexNavSlide(index);
         this.dist.finalPosition = activSlide.position;
+    }
+
+    changeActiveClass() {
+        this.slideArray.forEach((el) => { el.elemento.classList.remove('ativo'); });
+
+        const elementoAtivo = this.slideArray[this.index.active].elemento;
+        elementoAtivo.classList.add('ativo');
     }
 
     activePrevSlide() {
@@ -122,13 +128,42 @@ export default class Slide {
             this.changeSlide(this.index.next);
         }
     }
+    //Acima Slides Config
+
+
+    //Ao Redimencior
+    onResize() {
+        setTimeout(() => {
+            this.slideConfig();
+            this.changeSlide(this.index.active);
+        }, 1000)
+
+    }
+
+    addResizeEvent() {
+        window.addEventListener('resize', this.onResize);
+    }
+    //Acima Ao Redimencior
+
+
+    //Config 
+    bindEvents() {
+        this.onStart = this.onStart.bind(this);
+        this.onmove = this.onmove.bind(this);
+        this.onEnd = this.onEnd.bind(this);
+        this.onResize = this.onResize.bind(this);
+    }
+
     init() {
         this.bindEvents();
         this.addSlideEvents();
         this.slideConfig();
         this.changeSlide(0);
+        this.changeActiveClass();
+        this.addResizeEvent();
         return this;
     }
+
 }
 
 /*

@@ -43,8 +43,21 @@ img {
     flex-shrink: 0;
     /*flex-shrink, os elementos, não diminuem seu tamanho, permanece com 80vw*/
     /*Fazendo com o q o elemento pai, aumente seu tamanho*/
-    width: 50vw;
+    width: 80vw;
     max-width: 800px;
     margin: 0  20px;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,.4);
+    opacity: .8;
+    transform: scale(.9);
+    transition: .4s;
 }
 
+
+
+  
+.slide .ativo {
+    opacity: 1;
+    transform: scale(1);
+}
