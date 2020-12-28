@@ -2,7 +2,8 @@ export default class Slide {
     constructor(slideWrapper, slide) {
         this.wrapper = document.querySelector(slideWrapper);
         this.slide = document.querySelector(slide);
-        this.dist = { finalPosition: 0, startX: 0, moviment: 0, movePosition: 0 }
+        this.dist = { finalPosition: 0, startX: 0, moviment: 0, movePosition: 0 };
+        this.slideArray;
     }
 
     moveSlide(distX) {
@@ -56,13 +57,51 @@ export default class Slide {
         this.onEnd = this.onEnd.bind(this);
     }
 
+    //Slides Config
+
+    positionSlide(slide) {
+        const margin = (this.wrapper.offsetWidth - slide.offsetWidth) / 2;
+        return -(slide.offsetLeft - margin);
+    }
+
+    indexNavSlide(index) {
+        const last = (this.slideArray.length) - 1;
+        const prev = index - 1;
+        const next = index + 1;
+        this.index = {
+            prev: (prev < 0) ? undefined : prev,
+            active: index,
+            next: (next > last) ? undefined : next,
+        }
+    }
+
+    slideConfig() {
+        const elementosArray = [...this.slide.children];
+        this.slideArray = elementosArray.map((elemento) => {
+            const position = this.positionSlide(elemento);
+            return {
+                elemento,
+                position
+            };
+        });
+    }
+
+    changeSlide(index) {
+        const activSlide = this.slideArray[index];
+
+        this.moveSlide(activSlide.position);
+        this.indexNavSlide(index);
+        this.dist.finalPosition = activSlide.position;
+    }
+
     init() {
         this.bindEvents();
         this.addSlideEvents();
+        this.slideConfig();
+        this.changeSlide(3);
         return this;
     }
 }
-
 
 /*
     No onStart() tem o e.preventDefault();
