@@ -43,11 +43,8 @@ img {
     flex-shrink: 0;
     /*flex-shrink, os elementos, não diminuem seu tamanho, permanece com 80vw*/
     /*Fazendo com o q o elemento pai, aumente seu tamanho*/
-    width: 80vw;
+    width: 50vw;
     max-width: 800px;
     margin: 0  20px;
 }
 
-.slide{
-    transform: translate3d(0, 0, 0);
-}
