@@ -7,6 +7,10 @@ body {
     padding: 0;
 }
 
+button{
+    cursor: pointer;
+}
+
 * {
     box-sizing: border-box;
 }
@@ -54,10 +58,33 @@ img {
     transition: .4s;
 }
 
-
-
   
 .slide .ativo {
     opacity: 1;
+    transform: scale(1);
+}
+
+button.prev, button.next{
+    background-color: aliceblue;
+    padding: 5px 15px;
+    padding-right: 17px;
+    font-size: 15px;
+    border: solid 1px #ccc;
+    border-radius: 3px;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+button:active{
+    background-color: bisque;
+    border: solid 1px #ccc;
+    transform: scale(1.03);
+}
+
+button.blocked{
+    background-color: rgb(182, 182, 182);
+    cursor: default;
+    opacity: 0.7;
+}
+button.blocked:active{
     transform: scale(1);
 }
