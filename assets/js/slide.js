@@ -1,3 +1,4 @@
+import debounced from './debounce.js';
 export default class Slide {
     constructor(slideWrapper, slide) {
         this.wrapper = document.querySelector(slideWrapper);
@@ -133,15 +134,13 @@ export default class Slide {
 
     //Ao Redimencior
     onResize() {
-        setTimeout(() => {
-            this.slideConfig();
-            this.changeSlide(this.index.active);
-        }, 1000)
-
+        this.slideConfig();
+        this.changeSlide(this.index.active);
     }
 
     addResizeEvent() {
-        window.addEventListener('resize', this.onResize);
+        const theDeboucend = debounced(this.onResize, 500);
+        window.addEventListener('resize', theDeboucend);
     }
     //Acima Ao Redimencior
 
