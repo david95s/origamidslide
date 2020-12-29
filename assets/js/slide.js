@@ -1,5 +1,6 @@
 import debounced from './debounce.js';
-export default class Slide {
+
+export class Slide {
     constructor(slideWrapper, slide) {
         this.wrapper = document.querySelector(slideWrapper);
         this.slide = document.querySelector(slide);
@@ -26,8 +27,7 @@ export default class Slide {
         if (event.type === 'touchstart') {
             this.dist.startX = event.changedTouches[0].clientX;
             moveType = 'touchmove';
-        } else {
-            //caso contrário |=> event.type === 'mousedown'
+        } else {//caso contrário |=> event.type === 'mousedown'
             event.preventDefault();
             this.dist.startX = event.clientX;
             moveType = 'mousemove';
@@ -38,8 +38,8 @@ export default class Slide {
 
     onmove(event) {
         const pointerPosition = (event.type === 'mousemove') ? event.clientX : event.changedTouches[0].clientX
-        const finalPosition = this.updatePosition(pointerPosition);
-        this.moveSlide(finalPosition);
+        const finalPositionConst = this.updatePosition(pointerPosition);
+        this.moveSlide(finalPositionConst);
     }
 
     onEnd(event) {
@@ -49,7 +49,8 @@ export default class Slide {
         this.dist.finalPosition = this.dist.movePosition;
         this.changeSlideOnEnd();
         this.transitionAtivo(true);
-        this.changeActiveClass();
+
+        this.addBlockedButtonEnd();
 
         //Eu add essa linha abaixo, caso queria possa remover,
         //Porem, q toda ver depois q eu iniciar o slide, 
@@ -60,8 +61,10 @@ export default class Slide {
     changeSlideOnEnd() {
         if (this.dist.moviment > 120 && this.index.next !== undefined) {
             this.activeNextSlide();
+            this.removBlockedButton();
         } else if (this.dist.moviment < -120 && this.index.prev !== undefined) {
             this.activePrevSlide();
+            this.removBlockedButton();
         } else {
             this.changeSlide(this.index.active);
         }
@@ -121,12 +124,14 @@ export default class Slide {
     activePrevSlide() {
         if (this.index.prev !== undefined) {
             this.changeSlide(this.index.prev);
+            this.changeActiveClass();
         }
     }
 
     activeNextSlide() {
         if (this.index.next !== undefined) {
             this.changeSlide(this.index.next);
+            this.changeActiveClass();
         }
     }
     //Acima Slides Config
@@ -151,6 +156,8 @@ export default class Slide {
         this.onmove = this.onmove.bind(this);
         this.onEnd = this.onEnd.bind(this);
         this.onResize = this.onResize.bind(this);
+        this.activePrevSlide = this.activePrevSlide.bind(this);
+        this.activeNextSlide = this.activeNextSlide.bind(this);
     }
 
     init() {
@@ -162,8 +169,70 @@ export default class Slide {
         this.addResizeEvent();
         return this;
     }
-
 }
+
+
+export class SlideNav extends Slide {
+    addArrow(prev, next) {
+        if (prev && next) {
+            this.prevElement = document.querySelector(prev);
+            this.nextElement = document.querySelector(next);
+            this.addArrowEvent();
+            if (this.index.prev == undefined) {
+                this.prevElement.classList.add('blocked');
+            }
+        }
+    }
+
+    addBlockedButtonEnd() {
+        if (this.nextElement && this.prevElement) {
+            if (this.index.next == undefined) {
+                this.nextElement.classList.add('blocked');
+            }
+            if (this.index.prev == undefined) {
+                this.prevElement.classList.add('blocked');
+            }
+        }
+    }
+
+    checkNext() {
+        if (this.index.prev == undefined) {
+            this.prevElement.classList.add('blocked');
+        }
+        if (this.nextElement.classList.contains('blocked')) {
+            this.nextElement.classList.remove('blocked');
+        }
+    }
+
+    checkPrev() {
+        if (this.index.next == ((this.slideArray.length) - 1)) {
+            this.nextElement.classList.add('blocked');
+        }
+        if (this.prevElement.classList.contains('blocked')) {
+            this.prevElement.classList.remove('blocked');
+        }
+    }
+
+    removBlockedButton() {
+        if (this.nextElement && this.prevElement) {
+            this.prevElement.classList.remove('blocked');
+            this.nextElement.classList.remove('blocked');
+        }
+
+    }
+
+    addArrowEvent() {
+        this.prevElement.addEventListener('click', () => {
+            this.activePrevSlide();
+            this.checkNext();
+        });
+        this.nextElement.addEventListener('click', () => {
+            this.checkPrev();
+            this.activeNextSlide();
+        });
+    }
+}
+
 
 /*
     No onStart() tem o e.preventDefault();
