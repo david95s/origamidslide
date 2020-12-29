@@ -50,6 +50,7 @@ export class Slide {
         this.changeSlideOnEnd();
         this.transitionAtivo(true);
 
+        this.addBlockedButtonEnd();
 
         //Eu add essa linha abaixo, caso queria possa remover,
         //Porem, q toda ver depois q eu iniciar o slide, 
@@ -124,8 +125,6 @@ export class Slide {
         if (this.index.prev !== undefined) {
             this.changeSlide(this.index.prev);
             this.changeActiveClass();
-        } else if (this.index.prev === undefined) {
-            this.prevElement.classList.add('blocked');
         }
     }
 
@@ -133,8 +132,6 @@ export class Slide {
         if (this.index.next !== undefined) {
             this.changeSlide(this.index.next);
             this.changeActiveClass();
-        } else if (this.index.next === undefined) {
-            this.nextElement.classList.add('blocked');
         }
     }
     //Acima Slides Config
@@ -177,26 +174,51 @@ export class Slide {
 
 export class SlideNav extends Slide {
     addArrow(prev, next) {
-        this.prevElement = document.querySelector(prev);
-        this.nextElement = document.querySelector(next);
-        this.addArrowEvent();
+        if (prev && next) {
+            this.prevElement = document.querySelector(prev);
+            this.nextElement = document.querySelector(next);
+            this.addArrowEvent();
+            if (this.index.prev == undefined) {
+                this.prevElement.classList.add('blocked');
+            }
+        }
+    }
+
+    addBlockedButtonEnd() {
+        if (this.nextElement && this.prevElement) {
+            if (this.index.next == undefined) {
+                this.nextElement.classList.add('blocked');
+            }
+            if (this.index.prev == undefined) {
+                this.prevElement.classList.add('blocked');
+            }
+        }
     }
 
     checkNext() {
+        if (this.index.prev == undefined) {
+            this.prevElement.classList.add('blocked');
+        }
         if (this.nextElement.classList.contains('blocked')) {
             this.nextElement.classList.remove('blocked');
         }
     }
 
     checkPrev() {
+        if (this.index.next == ((this.slideArray.length) - 1)) {
+            this.nextElement.classList.add('blocked');
+        }
         if (this.prevElement.classList.contains('blocked')) {
             this.prevElement.classList.remove('blocked');
         }
     }
 
     removBlockedButton() {
-        this.prevElement.classList.remove('blocked');
-        this.nextElement.classList.remove('blocked');
+        if (this.nextElement && this.prevElement) {
+            this.prevElement.classList.remove('blocked');
+            this.nextElement.classList.remove('blocked');
+        }
+
     }
 
     addArrowEvent() {
