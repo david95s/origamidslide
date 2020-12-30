@@ -2,10 +2,12 @@ import debounced from './debounce.js';
 
 export class Slide {
     constructor(slideWrapper, slide) {
+        this.indexInit = 2;
         this.wrapper = document.querySelector(slideWrapper);
         this.slide = document.querySelector(slide);
         this.dist = { finalPosition: 0, startX: 0, moviment: 0, movePosition: 0 };
         this.slideArray;
+        this.changeEvent = new Event('changeEvent');
     }
 
     transitionAtivo(active) {
@@ -49,22 +51,15 @@ export class Slide {
         this.dist.finalPosition = this.dist.movePosition;
         this.changeSlideOnEnd();
         this.transitionAtivo(true);
-
-        this.addBlockedButtonEnd();
-
-        //Eu add essa linha abaixo, caso queria possa remover,
-        //Porem, q toda ver depois q eu iniciar o slide, 
+        //Eu q fiz, evita ficar mudando ao click após iniciar o evento
         this.dist.moviment = 0;
-        //Se eu ficar dando click, ele vai disparar, 
     }
 
     changeSlideOnEnd() {
         if (this.dist.moviment > 120 && this.index.next !== undefined) {
             this.activeNextSlide();
-            this.removBlockedButton();
         } else if (this.dist.moviment < -120 && this.index.prev !== undefined) {
             this.activePrevSlide();
-            this.removBlockedButton();
         } else {
             this.changeSlide(this.index.active);
         }
@@ -112,11 +107,24 @@ export class Slide {
         this.moveSlide(activSlide.position);
         this.indexNavSlide(index);
         this.dist.finalPosition = activSlide.position;
+        this.changeActiveClass();
+
+        //this.wrapper.dispatchEvent(this.changeEvent);
+
+        if (this.nextElement && this.prevElement) {
+            this.removBlockedButton();
+            if (this.index.next == undefined || this.index.prev == undefined) {
+                this.addBlockedButtonEnd();
+            }
+        }
+
+        if (this.arrayControl) {
+            this.activeControlItem(index);
+        }
     }
 
     changeActiveClass() {
         this.slideArray.forEach((el) => { el.elemento.classList.remove('ativo'); });
-
         const elementoAtivo = this.slideArray[this.index.active].elemento;
         elementoAtivo.classList.add('ativo');
     }
@@ -124,14 +132,12 @@ export class Slide {
     activePrevSlide() {
         if (this.index.prev !== undefined) {
             this.changeSlide(this.index.prev);
-            this.changeActiveClass();
         }
     }
 
     activeNextSlide() {
         if (this.index.next !== undefined) {
             this.changeSlide(this.index.next);
-            this.changeActiveClass();
         }
     }
     //Acima Slides Config
@@ -164,15 +170,22 @@ export class Slide {
         this.bindEvents();
         this.addSlideEvents();
         this.slideConfig();
-        this.changeSlide(0);
+        this.changeSlide(this.indexInit);
         this.changeActiveClass();
         this.addResizeEvent();
+        this.transitionAtivo(true);
         return this;
     }
 }
 
 
 export class SlideNav extends Slide {
+
+    constructor(slideWrapper, slide) {
+        super(slideWrapper, slide); //usar super, pois essa class é extendid
+        this.bindEventosExtendidos();
+    }
+
     addArrow(prev, next) {
         if (prev && next) {
             this.prevElement = document.querySelector(prev);
@@ -185,31 +198,11 @@ export class SlideNav extends Slide {
     }
 
     addBlockedButtonEnd() {
-        if (this.nextElement && this.prevElement) {
-            if (this.index.next == undefined) {
-                this.nextElement.classList.add('blocked');
-            }
-            if (this.index.prev == undefined) {
-                this.prevElement.classList.add('blocked');
-            }
-        }
-    }
-
-    checkNext() {
-        if (this.index.prev == undefined) {
-            this.prevElement.classList.add('blocked');
-        }
-        if (this.nextElement.classList.contains('blocked')) {
-            this.nextElement.classList.remove('blocked');
-        }
-    }
-
-    checkPrev() {
-        if (this.index.next == ((this.slideArray.length) - 1)) {
+        if (this.index.next == undefined) {
             this.nextElement.classList.add('blocked');
         }
-        if (this.prevElement.classList.contains('blocked')) {
-            this.prevElement.classList.remove('blocked');
+        if (this.index.prev == undefined) {
+            this.prevElement.classList.add('blocked');
         }
     }
 
@@ -218,19 +211,80 @@ export class SlideNav extends Slide {
             this.prevElement.classList.remove('blocked');
             this.nextElement.classList.remove('blocked');
         }
-
     }
 
     addArrowEvent() {
         this.prevElement.addEventListener('click', () => {
             this.activePrevSlide();
-            this.checkNext();
         });
         this.nextElement.addEventListener('click', () => {
-            this.checkPrev();
             this.activeNextSlide();
         });
     }
+
+    //Paginação
+    createControl() {
+        const containerControl = document.createElement('section');
+        containerControl.dataset.control = "slide_btns";
+
+        this.slideArray.forEach((item, index) => {
+            containerControl.innerHTML += `
+                <a href='#slide${index + 1}'>${index + 1}</a>
+            `;
+        });
+        //this.wrapper.appendChild(containerControl);
+
+        const elementNextWrapper = this.wrapper.nextElementSibling;
+        const superBody = document.body;
+
+        if (elementNextWrapper) {
+            superBody.insertBefore(containerControl, elementNextWrapper);
+        } else {
+            superBody.appendChild(containerControl);
+        }
+
+        return containerControl;
+    }
+
+    eventControl(item, index) {
+        item.addEventListener('click', (event) => {
+            event.preventDefault();
+            this.changeSlide(index);
+        });
+        /*
+        this.wrapper.addEventListener('changeEvent', () => {
+            console.log('aa')
+            this.activeControlItem();
+        });
+        */
+    }
+
+    activeControlItem(index) {
+        this.arrayControl.forEach(item => item.classList.remove('ativo'));
+        this.arrayControl[index].classList.add('ativo');
+    }
+
+    addControl(customControl) {
+        if (this.control == undefined) {
+            this.control = document.querySelector(customControl) || this.createControl();
+            this.arrayControl = [...this.control.children];
+            this.arrayControl.forEach(this.eventControl);
+            this.activeControlItem(this.indexInit);
+        } else {
+            this.control.remove();
+            this.control = document.querySelector(customControl) || this.createControl();
+            this.arrayControl = [...this.control.children];
+            this.arrayControl.forEach(this.eventControl);
+            this.activeControlItem(this.indexInit);
+        }
+    }
+
+
+    bindEventosExtendidos() {
+        this.eventControl = this.eventControl.bind(this);
+        this.activeControlItem = this.activeControlItem.bind(this);
+    };
+
 }
 
 
