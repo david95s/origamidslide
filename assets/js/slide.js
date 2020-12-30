@@ -1,8 +1,9 @@
 import debounced from './debounce.js';
 
 export class Slide {
-    constructor(slideWrapper, slide) {
-        this.indexInit = 2;
+    constructor(slideWrapper, slide, firstIndex) {
+
+        this.indexInit = firstIndex || 0;
         this.wrapper = document.querySelector(slideWrapper);
         this.slide = document.querySelector(slide);
         this.dist = { finalPosition: 0, startX: 0, moviment: 0, movePosition: 0 };
@@ -174,6 +175,7 @@ export class Slide {
         this.changeActiveClass();
         this.addResizeEvent();
         this.transitionAtivo(true);
+        this.addControl();
         return this;
     }
 }
@@ -181,8 +183,8 @@ export class Slide {
 
 export class SlideNav extends Slide {
 
-    constructor(slideWrapper, slide) {
-        super(slideWrapper, slide); //usar super, pois essa class é extendid
+    constructor(slideWrapper, slide, firstIndex) {
+        super(slideWrapper, slide, firstIndex); //usar super, pois essa class é extendid
         this.bindEventosExtendidos();
     }
 
@@ -232,17 +234,15 @@ export class SlideNav extends Slide {
                 <a href='#slide${index + 1}'>${index + 1}</a>
             `;
         });
-        //this.wrapper.appendChild(containerControl);
 
+        const dadWrapper = this.wrapper.parentElement;
         const elementNextWrapper = this.wrapper.nextElementSibling;
-        const superBody = document.body;
 
         if (elementNextWrapper) {
-            superBody.insertBefore(containerControl, elementNextWrapper);
+            dadWrapper.insertBefore(containerControl, elementNextWrapper);
         } else {
-            superBody.appendChild(containerControl);
+            dadWrapper.appendChild(containerControl);
         }
-
         return containerControl;
     }
 
